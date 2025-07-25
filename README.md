@@ -128,10 +128,6 @@ This approach ensures the application works across different Okteto environments
 ### Run Tests
 
 ```bash
-# Test Phase 1: Asset generation
-cd phase1-assets/
-okteto test validate
-
 # Test Phase 2: Application functionality and endpoint accessibility
 cd ../phase2-app/
 okteto test validate
