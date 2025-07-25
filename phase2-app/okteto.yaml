@@ -21,10 +21,10 @@ destroy:
   - kubectl delete -f k8s.yaml --ignore-not-found=true
 
 test:
-  nginx-functionality:
+  validate:
     image: curlimages/curl:latest
     commands:
-      - echo "🧪 Testing nginx application functionality..."
+      - echo "🧪 Validating nginx application deployment..."
       - echo "⏳ Waiting for nginx pod to be ready..."
       - kubectl wait --for=condition=ready pod -l app=nginx-app --timeout=60s -n ${OKTETO_NAMESPACE}
       - echo "✅ Nginx pod is ready"
@@ -34,13 +34,7 @@ test:
       - echo "🔍 Verifying content from global base image..."
       - curl -s http://nginx-service.${OKTETO_NAMESPACE}.svc.cluster.local/ | grep -q "Base Image Architecture"
       - echo "✅ Content from global base image is present"
-      - echo "🎉 Nginx application tests passed!"
-  
-  endpoint-accessibility:
-    image: curlimages/curl:latest
-    commands:
-      - echo "🧪 Testing public endpoint accessibility..."
-      - echo "🔗 Testing ingress endpoint..."
+      - echo "🔗 Testing public endpoint accessibility..."
       - curl -f https://nginx-ingress-${OKTETO_NAMESPACE}.${OKTETO_DOMAIN}/ | grep -q "Generated HTML"
       - echo "✅ Public endpoint is accessible and serves expected content"
-      - echo "🎉 Endpoint accessibility tests passed!"
+      - echo "🎉 All validation tests passed!"
