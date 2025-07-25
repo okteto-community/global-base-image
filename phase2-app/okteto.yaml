@@ -1,6 +1,6 @@
 # This okteto.yaml uses a pre-built global base image
 # The html-generator image should already exist in the registry
-# Built previously using: okteto build -f ../phase1-assets/okteto-base.yaml html-generator
+# Built previously using: okteto build html-generator (from ../phase1-assets/ directory)
 
 build:
   nginx:
@@ -19,3 +19,28 @@ deploy:
 
 destroy:
   - kubectl delete -f k8s.yaml --ignore-not-found=true
+
+test:
+  nginx-functionality:
+    image: curlimages/curl:latest
+    commands:
+      - echo "🧪 Testing nginx application functionality..."
+      - echo "⏳ Waiting for nginx pod to be ready..."
+      - kubectl wait --for=condition=ready pod -l app=nginx-app --timeout=60s -n ${OKTETO_NAMESPACE}
+      - echo "✅ Nginx pod is ready"
+      - echo "🌐 Testing internal service connectivity..."
+      - curl -f http://nginx-service.${OKTETO_NAMESPACE}.svc.cluster.local/ | grep -q "Generated HTML"
+      - echo "✅ Internal service serves expected content"
+      - echo "🔍 Verifying content from global base image..."
+      - curl -s http://nginx-service.${OKTETO_NAMESPACE}.svc.cluster.local/ | grep -q "Base Image Architecture"
+      - echo "✅ Content from global base image is present"
+      - echo "🎉 Nginx application tests passed!"
+  
+  endpoint-accessibility:
+    image: curlimages/curl:latest
+    commands:
+      - echo "🧪 Testing public endpoint accessibility..."
+      - echo "🔗 Testing ingress endpoint..."
+      - curl -f https://nginx-ingress-${OKTETO_NAMESPACE}.${OKTETO_DOMAIN}/ | grep -q "Generated HTML"
+      - echo "✅ Public endpoint is accessible and serves expected content"
+      - echo "🎉 Endpoint accessibility tests passed!"
