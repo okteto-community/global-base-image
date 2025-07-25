@@ -1,0 +1,40 @@
+# This okteto.yaml uses a pre-built global base image
+# The html-generator image should already exist in the registry
+# Built previously using: okteto build html-generator (from ../phase1-assets/ directory)
+
+build:
+  nginx:
+    context: .
+    dockerfile: Dockerfile.nginx
+    args:
+      BASE_IMAGE: registry.${OKTETO_DOMAIN}/${OKTETO_NAMESPACE}/workspace-html-generator:v1.0.0
+    # No dependency on html-generator build - it uses the global image directly
+
+deploy:
+  - name: Deploy Nginx App Using Global Base Image
+    command: |
+      echo "🚀 Deploying nginx application that uses global base image..."
+      echo "📦 Base image: registry.${OKTETO_DOMAIN}/${OKTETO_NAMESPACE}/workspace-html-generator:v1.0.0"
+      envsubst < k8s.yaml | kubectl apply -f -
+
+destroy:
+  - kubectl delete -f k8s.yaml --ignore-not-found=true
+
+test:
+  validate:
+    image: curlimages/curl:latest
+    commands:
+      - echo "🧪 Validating nginx application deployment..."
+      - echo "⏳ Waiting for nginx pod to be ready..."
+      - kubectl wait --for=condition=ready pod -l app=nginx-app --timeout=60s -n ${OKTETO_NAMESPACE}
+      - echo "✅ Nginx pod is ready"
+      - echo "🌐 Testing internal service connectivity..."
+      - curl -f http://nginx-service.${OKTETO_NAMESPACE}.svc.cluster.local/ | grep -q "Generated HTML"
+      - echo "✅ Internal service serves expected content"
+      - echo "🔍 Verifying content from global base image..."
+      - curl -s http://nginx-service.${OKTETO_NAMESPACE}.svc.cluster.local/ | grep -q "Base Image Architecture"
+      - echo "✅ Content from global base image is present"
+      - echo "🔗 Testing public endpoint accessibility..."
+      - curl -f https://nginx-ingress-${OKTETO_NAMESPACE}.${OKTETO_DOMAIN}/ | grep -q "Generated HTML"
+      - echo "✅ Public endpoint is accessible and serves expected content"
+      - echo "🎉 All validation tests passed!"

@@ -1,0 +1,16 @@
+# Final nginx image using the global base HTML generator image
+# This references a pre-built image from the Okteto registry using build arguments
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE} as html-source
+
+# Use nginx as the final stage
+FROM nginx:alpine
+
+# Copy the generated HTML from the base image
+COPY --from=html-source /tmp/index.html /usr/share/nginx/html/
+
+# Expose port 80
+EXPOSE 80
+
+# Start nginx (this is the default command for nginx image)
+CMD ["nginx", "-g", "daemon off;"]

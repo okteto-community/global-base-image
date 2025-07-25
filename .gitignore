@@ -1,0 +1,14 @@
+# Browser screenshots
+.browser_screenshots/
+
+# Temporary files
+*.tmp
+*.log
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

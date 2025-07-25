@@ -1,0 +1,160 @@
+# Base image for HTML generation
+FROM alpine:latest as html-generator
+
+# Install necessary tools
+RUN apk add --no-cache bash
+
+# Create the HTML content using a shell script
+RUN cat > /generate-html.sh << 'EOF'
+#!/bin/bash
+
+# Generate dynamic HTML content
+cat > /tmp/index.html << 'HTML'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated HTML on Nginx - Okteto</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 600px;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-card h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .info-card p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .timestamp {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .base-info {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="pulse">🚀 Generated HTML</h1>
+        <p class="subtitle">Built from Base Image in Okteto Registry</p>
+        
+        <div class="base-info">
+            <h3>📦 Base Image Architecture</h3>
+            <p>This HTML was generated in a separate base image and then used by the nginx container</p>
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>🐳 Base Stage</h3>
+                <p>HTML Generator</p>
+            </div>
+            <div class="info-card">
+                <h3>🌐 Final Stage</h3>
+                <p>Nginx Alpine</p>
+            </div>
+            <div class="info-card">
+                <h3>☁️ Platform</h3>
+                <p>Okteto Cloud</p>
+            </div>
+            <div class="info-card">
+                <h3>✨ Registry</h3>
+                <p>Global Image</p>
+            </div>
+        </div>
+        
+        <div class="timestamp">
+            Generated at build time: BUILD_TIMESTAMP
+        </div>
+    </div>
+</body>
+</html>
+HTML
+
+echo "HTML file generated successfully at /tmp/index.html"
+EOF
+
+# Make the script executable and run it
+RUN chmod +x /generate-html.sh && /generate-html.sh
+
+# Replace the BUILD_TIMESTAMP placeholder with actual timestamp
+RUN sed -i "s/BUILD_TIMESTAMP/$(date)/" /tmp/index.html
+
+# Set the working directory
+WORKDIR /tmp
