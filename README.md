@@ -125,18 +125,6 @@ This approach ensures the application works across different Okteto environments
 
 ## Testing and Validation
 
-### Validate Manifests
-
-```bash
-# Validate Phase 1 manifest
-cd phase1-assets/
-okteto validate
-
-# Validate Phase 2 manifest  
-cd ../phase2-app/
-okteto validate
-```
-
 ### Run Tests
 
 ```bash

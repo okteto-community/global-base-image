@@ -1,6 +1,6 @@
 # This okteto.yaml is used to build and push a global base image for HTML asset generation
 # This image is NOT meant to be deployed - it only contains generated HTML assets
-# Run this with: okteto build -f okteto-base.yaml html-generator
+# Run this with: okteto build html-generator
 
 build:
   html-generator:
@@ -12,3 +12,16 @@ build:
     # Other applications can use this image to copy the HTML assets (not for deployment)
 
 # No deploy section - this base image is only for asset generation, not deployment
+
+test:
+  validate:
+    image: registry.${OKTETO_DOMAIN}/${OKTETO_NAMESPACE}/workspace-html-generator:v1.0.0
+    commands:
+      - echo "🧪 Testing HTML asset generation..."
+      - test -f /tmp/index.html
+      - echo "✅ HTML file exists"
+      - grep -q "Generated HTML" /tmp/index.html
+      - echo "✅ HTML contains expected content"
+      - grep -q "Base Image Architecture" /tmp/index.html
+      - echo "✅ HTML contains architecture information"
+      - echo "🎉 Asset generation tests passed!"
