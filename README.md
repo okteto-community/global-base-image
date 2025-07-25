@@ -119,7 +119,13 @@ This approach ensures the application works across different Okteto environments
 6. **Asset Management**: Centralized management of static assets across applications
 7. **Portability**: Single BASE_IMAGE variable makes configuration cleaner and more portable
 
-## Validation
+---
+
+*This demo was developed in collaboration with **Okteto AI Agent Fleets**, showcasing the power of AI-assisted cloud-native development workflows and best practices for global asset management in Kubernetes environments.*
+
+## Testing and Validation
+
+### Validate Manifests
 
 ```bash
 # Validate Phase 1 manifest
@@ -129,13 +135,29 @@ okteto validate
 # Validate Phase 2 manifest  
 cd ../phase2-app/
 okteto validate
+```
 
+### Run Tests
+
+```bash
+# Test Phase 1: Asset generation
+cd phase1-assets/
+okteto test validate
+
+# Test Phase 2: Application functionality and endpoint accessibility
+cd ../phase2-app/
+okteto test validate
+```
+
+### Manual Verification
+
+```bash
 # Check deployed resources
 kubectl get pods -n ${OKTETO_NAMESPACE}
 kubectl get svc -n ${OKTETO_NAMESPACE}
 kubectl get ingress -n ${OKTETO_NAMESPACE}
 
-# Test the endpoint
+# Test the endpoint manually
 curl https://nginx-ingress-${OKTETO_NAMESPACE}.${OKTETO_DOMAIN}
 ```
 
